@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class ShoppingListActivity extends AppCompatActivity {
 
-    private ArrayList<String> itemList;
+    private ArrayList<ShoppingItem> itemList;
     private ShoppingListAdapter adapter;
 
 
@@ -36,10 +36,10 @@ public class ShoppingListActivity extends AppCompatActivity {
         edit_item = (EditText) findViewById(R.id.edit_item);
 
         itemList = new ArrayList<>();
-        itemList.add("Patatas");
-        itemList.add("Papel WC");
-        itemList.add("Manzana");
-        itemList.add("Chocolate");
+        itemList.add(new ShoppingItem("Patatas", true));
+        itemList.add(new ShoppingItem("Papel WC", true));
+        itemList.add(new ShoppingItem("Manzana"));
+        itemList.add(new ShoppingItem("Chocolate"));
 
         adapter = new ShoppingListAdapter(this, android.R.layout.simple_list_item_1, itemList);
 
@@ -62,6 +62,14 @@ public class ShoppingListActivity extends AppCompatActivity {
 
         list.setAdapter(adapter);
 
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+                itemList.get(pos).toggleChecked();
+                adapter.notifyDataSetChanged();
+            }
+        });
+
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?>  list, View item, int pos, long id) {
@@ -76,7 +84,7 @@ public class ShoppingListActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.confirm);
         String fmt = getResources().getString(R.string.confirm_message);
-        builder.setMessage(String.format(fmt, itemList.get(pos)));
+        builder.setMessage(String.format(fmt, itemList.get(pos).getText()));
 
 
         builder.setPositiveButton(R.string.remove, new DialogInterface.OnClickListener() {
@@ -96,9 +104,11 @@ public class ShoppingListActivity extends AppCompatActivity {
     private void addItem() {
         String item_text = edit_item.getText().toString();
         if (!item_text.isEmpty()) {
-            itemList.add(item_text);
+            itemList.add(new ShoppingItem(item_text));
             adapter.notifyDataSetChanged();
             edit_item.setText("");
         }
+        list.smoothScrollToPosition(itemList.size()-1);
+
     }
 }
